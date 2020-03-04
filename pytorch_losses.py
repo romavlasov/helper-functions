@@ -71,6 +71,22 @@ class BCELoss(nn.Module):
         if self.reduce:
             return torch.mean(bce)
         return bce
+    
+
+class DiceLoss(nn.Module):
+    def __init__(self, beta=1, eps=1e-7, **kwargs):
+        super(DiceLoss, self).__init__()
+        self.beta = beta
+        self.eps = eps
+
+    def forward(self, inputs, target):
+        inputs = torch.sigmoid(inputs)
+        
+        intersection = torch.sum(inputs * target)
+        union = torch.sum(inputs + target)
+        score = 2 * intersection / (union + self.eps)
+                 
+        return 1. - score
 
 
 def focal(*argv, **kwargs):
@@ -87,3 +103,7 @@ def ce(*argv, **kwargs):
 
 def binary_ce(*argv, **kwargs):
     return BCELoss(*argv, **kwargs)
+
+
+def dice(*argv, **kwargs):
+    return DiceLoss(*argv, **kwargs)
