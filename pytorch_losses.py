@@ -40,7 +40,38 @@ class BinaryFocalLoss(nn.Module):
         if self.reduce:
             return torch.mean(loss)
         return loss
-   
+    
+ 
+class CELoss(nn.Module):
+    def __init__(self, reduce=True, **kwargs):
+        super(CELoss, self).__init__()
+        self.reduce = reduce
+
+    def forward(self, inputs, target):
+        target = target.long()
+        ce = F.cross_entropy(inputs, target, reduction='none')
+
+        if self.reduce:
+            return torch.mean(ce)
+        return ce
+
+
+class BCELoss(nn.Module):
+    def __init__(self, logits=True, reduce=True, **kwargs):
+        super(BCELoss, self).__init__()
+        self.logits = logits
+        self.reduce = reduce
+
+    def forward(self, inputs, targets):
+        if self.logits:
+            bce = F.binary_cross_entropy_with_logits(inputs, targets, reduction='none')
+        else:
+            bce = F.binary_cross_entropy(inputs, targets, reduction='none')
+
+        if self.reduce:
+            return torch.mean(bce)
+        return bce
+
 
 def focal(*argv, **kwargs):
     return FocalLoss(*argv, **kwargs)
@@ -48,3 +79,11 @@ def focal(*argv, **kwargs):
 
 def binary_focal(*argv, **kwargs):
     return BinaryFocalLoss(*argv, **kwargs)
+
+
+def ce(*argv, **kwargs):
+    return CELoss(*argv, **kwargs)
+
+
+def binary_ce(*argv, **kwargs):
+    return BCELoss(*argv, **kwargs)
