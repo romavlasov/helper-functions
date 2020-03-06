@@ -33,10 +33,10 @@ class ChannelSqueeze(nn.Module):
         
         
  class UpSample(nn.Module):
-    def __init__(self, in_channels, out_channels, **kwargs):
+    def __init__(self, in_channels, out_channels, kernel_size, **kwargs):
         super(UpSample, self).__init__()
         self.block = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, bias=False, **kwargs),
+            nn.Conv2d(in_channels, out_channels, kernel_size, bias=False, **kwargs),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
         )
