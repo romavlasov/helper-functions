@@ -48,7 +48,6 @@ class CELoss(nn.Module):
         self.reduce = reduce
 
     def forward(self, inputs, target):
-        target = target.long()
         ce = F.cross_entropy(inputs, target, reduction='none')
 
         if self.reduce:
