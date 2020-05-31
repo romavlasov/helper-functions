@@ -96,12 +96,12 @@ class LabelSmoothing(nn.Module):
         self.reduce = reduce
 
     def forward(self, inputs, targets):
-        logprobs = torch.nn.functional.log_softmax(inputs, dim=-1)
+        logprobs = F.log_softmax(inputs, dim=-1)
 
         nll_loss = -logprobs * targets
-        nll_loss = nll_loss.sum(-1)
+        nll_loss = torch.sum(nll_loss, dim=-1)
 
-        smooth_loss = -logprobs.mean(dim=-1)
+        smooth_loss = -torch.mean(logprobs, dim=-1)
 
         loss = self.confidence * nll_loss + self.smoothing * smooth_loss
 
