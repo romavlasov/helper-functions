@@ -86,6 +86,29 @@ class DiceLoss(nn.Module):
         score = 2 * intersection / (union + self.eps)
                  
         return 1. - score
+    
+    
+class LabelSmoothing(nn.Module):
+    def __init__(self, smoothing=0.05, reduce=True):
+        super(LabelSmoothing, self).__init__()
+        self.confidence = 1.0 - smoothing
+        self.smoothing = smoothing
+        self.reduce = reduce
+
+    def forward(self, inputs, targets):
+        logprobs = torch.nn.functional.log_softmax(inputs, dim=-1)
+
+        nll_loss = -logprobs * targets
+        nll_loss = nll_loss.sum(-1)
+
+        smooth_loss = -logprobs.mean(dim=-1)
+
+        loss = self.confidence * nll_loss + self.smoothing * smooth_loss
+
+        if self.reduce:
+            loss = torch.mean(loss)
+
+        return loss
 
 
 def focal(*argv, **kwargs):
@@ -106,3 +129,7 @@ def binary_ce(*argv, **kwargs):
 
 def dice(*argv, **kwargs):
     return DiceLoss(*argv, **kwargs)
+
+
+def label_smoothing(*argv, **kwargs):
+    return LabelSmoothing(*argv, **kwargs)
